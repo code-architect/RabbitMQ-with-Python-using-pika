@@ -14,20 +14,35 @@ class Metaclass(type):
             return cls._instance[cls]
 
 
-class RabbitMQ(metaclass=Metaclass):
+class RabbitMQConfigure(metaclass=Metaclass):
     def __init__(self, queue='hello',
-                 url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd"):
-        self._connection = pika.BlockingConnection(pika.URLParameters(url))
-        self._channel = self._connection.channel()
+                 url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
+                 routingKey='hello', exchange=''):
         self.queue = queue
-        self._channel.queue_declare(queue=self.queue)
+        self.host = url
+        self.routingKey = routingKey
+        self.exchange = exchange
+
+
+class RabbitMQ():
+    def __init__(self, server):
+        self.server = server
+
+        self._connection = pika.BlockingConnection(pika.URLParameters(self.server.host))
+        self._channel = self._connection.channel()
+        self._channel.queue_declare(queue=self.server.queue)
 
     def publish(self, payload={}):
-        self._channel.basic_publish(exchange='', routing_key='hello', body=str(payload))
-        print("published")
+        self._channel.basic_publish(exchange=self.server.exchange, routing_key=self.server.routingKey, body=str(payload))
+        print("Published Message: {}".format(payload))
         self._connection.close()
 
 
 if __name__ == "__main__":
-    server = RabbitMQ(queue='hello')
-    server.publish(payload={"data": "Hello my friend"})
+    server = RabbitMQConfigure(queue='hello',
+                 url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
+                 routingKey='hello', exchange='')
+
+    rabbitmq = RabbitMQ(server)
+    rabbitmq.publish(payload={"data": 22})
+
