@@ -45,3 +45,5 @@ if __name__ == "__main__":
     configuration = RabbitMQServerConfigure()
     consumer = RabbitMQServer(server=configuration)
     consumer.start_server()
+
+# TODO: Going to add a json converter
