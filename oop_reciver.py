@@ -1,5 +1,6 @@
 try:
     import pika
+    import ast
 except Exception as e:
     print("Some modules are missing {}".format_map(e))
 
@@ -24,7 +25,6 @@ class RabbitMQServerConfigure(metaclass=Metaclass):
 class RabbitMQServer():
     def __init__(self, server):
         """
-
         :param server: Object of RabbitMQServerConfigure class
         """
         self.server = server
@@ -34,7 +34,10 @@ class RabbitMQServer():
 
     @staticmethod
     def callback(ch, method, properties, body):
-        print("Received %r" % body)
+        payload = body.decode("utf-8")
+        payload = ast.literal_eval(payload)
+        print(type(payload))
+        print("Data Received: {}".format(payload))
 
     def start_server(self):
         self._channel.basic_consume(queue=self.server.queue, on_message_callback=RabbitMQServer.callback, auto_ack=True)
@@ -46,4 +49,6 @@ if __name__ == "__main__":
     consumer = RabbitMQServer(server=configuration)
     consumer.start_server()
 
-# TODO: Going to add a json converter
+# TODO: 1. Going to add a json converter
+# TODO: 2. work on a auto-import mechanism for import
+#
