@@ -15,6 +15,8 @@ class Metaclass(type):
 
 
 class RabbitMQConfigure(metaclass=Metaclass):
+    """ Configuration of the RabbitMQ server """
+
     def __init__(self, queue='hello',
                  url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
                  routingKey='hello', exchange=''):
@@ -26,6 +28,9 @@ class RabbitMQConfigure(metaclass=Metaclass):
 
 class RabbitMQ():
     def __init__(self, server):
+        """
+        :param server: Object of RabbitMQConfigure class
+        """
         self.server = server
 
         self._connection = pika.BlockingConnection(pika.URLParameters(self.server.host))
@@ -33,16 +38,22 @@ class RabbitMQ():
         self._channel.queue_declare(queue=self.server.queue)
 
     def publish(self, payload={}):
-        self._channel.basic_publish(exchange=self.server.exchange, routing_key=self.server.routingKey, body=str(payload))
+        """
+        :param payload: JSON payload
+        :return: None
+        """
+        self._channel.basic_publish(exchange=self.server.exchange, routing_key=self.server.routingKey,
+                                    body=str(payload))
         print("Published Message: {}".format(payload))
         self._connection.close()
 
 
 if __name__ == "__main__":
     server = RabbitMQConfigure(queue='hello',
-                 url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
-                 routingKey='hello', exchange='')
+                               url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
+                               routingKey='hello', exchange='')
 
     rabbitmq = RabbitMQ(server)
     rabbitmq.publish(payload={"data": 22})
 
+# Got help from Soumil. Thank you brother for the wonderful idea.
