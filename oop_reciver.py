@@ -49,6 +49,5 @@ if __name__ == "__main__":
     consumer = RabbitMQServer(server=configuration)
     consumer.start_server()
 
-# TODO: 1. Going to add a json converter
 # TODO: 2. work on a auto-import mechanism for import
 #

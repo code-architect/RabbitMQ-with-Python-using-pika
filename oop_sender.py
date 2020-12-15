@@ -27,6 +27,8 @@ class RabbitMQConfigure(metaclass=Metaclass):
 
 
 class RabbitMQ():
+    __slots__ = ["server", "_channel", "_connection"]
+
     def __init__(self, server):
         """
         :param server: Object of RabbitMQConfigure class
@@ -37,6 +39,14 @@ class RabbitMQ():
         self._channel = self._connection.channel()
         self._channel.queue_declare(queue=self.server.queue)
 
+    def __enter__(self):
+        print("Hi, I'm __enter__ method")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("I'm __exit__ method")
+        self._connection.close()
+
     def publish(self, payload={}):
         """
         :param payload: JSON payload
@@ -45,7 +55,6 @@ class RabbitMQ():
         self._channel.basic_publish(exchange=self.server.exchange, routing_key=self.server.routingKey,
                                     body=str(payload))
         print("Published Message: {}".format(payload))
-        self._connection.close()
 
 
 if __name__ == "__main__":
@@ -53,7 +62,9 @@ if __name__ == "__main__":
                                url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
                                routingKey='hello', exchange='')
 
-    rabbitmq = RabbitMQ(server)
-    rabbitmq.publish(payload={"data": 22})
+    # rabbitmq = RabbitMQ(server)
+    # rabbitmq.publish(payload={"data": 22})
+    with RabbitMQ(server) as rabbitmq:
+        rabbitmq.publish(payload={"data": 22})
 
 # Got help from Soumil. Thank you brother for the wonderful idea.
