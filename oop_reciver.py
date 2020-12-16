@@ -36,10 +36,15 @@ class RabbitMQServer():
     def callback(ch, method, properties, body):
         payload = body.decode("utf-8")
         payload = ast.literal_eval(payload)
+
+        with open("received.png", "wb") as f:
+            f.write(payload)
+
         print(type(payload))
         print("Data Received: {}".format(payload))
 
     def start_server(self):
+        # here we can write the code to store the image into a database
         self._channel.basic_consume(queue=self.server.queue, on_message_callback=RabbitMQServer.callback, auto_ack=True)
         self._channel.start_consuming()
 

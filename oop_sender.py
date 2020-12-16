@@ -14,6 +14,8 @@ class Metaclass(type):
             return cls._instance[cls]
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 class RabbitMQConfigure(metaclass=Metaclass):
     """ Configuration of the RabbitMQ server """
 
@@ -25,6 +27,8 @@ class RabbitMQConfigure(metaclass=Metaclass):
         self.routingKey = routingKey
         self.exchange = exchange
 
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 class RabbitMQ():
     __slots__ = ["server", "_channel", "_connection"]
@@ -57,14 +61,34 @@ class RabbitMQ():
         print("Published Message: {}".format(payload))
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+class Image(object):
+    __slots__ = ["filename"]
+
+    def __init__(self, filename):
+        self.filename = filename
+
+    @property
+    def get(self):
+        with open(self.filename, "rb") as f:
+            data = f.read()
+        return data
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     server = RabbitMQConfigure(queue='hello',
                                url="amqps://kdqxikdd:r3YcTfJjFXoN0f04K8MFLixfO08RrY8d@lionfish.rmq.cloudamqp.com/kdqxikdd",
                                routingKey='hello', exchange='')
 
-    # rabbitmq = RabbitMQ(server)
-    # rabbitmq.publish(payload={"data": 22})
+    # we can use the os module to get the path also
+    image = Image(filename="D:\/xampp\/htdocs\/sand_box\/RabbitMQ_python\/77588.jpg")
+    data = image.get
+
     with RabbitMQ(server) as rabbitmq:
-        rabbitmq.publish(payload={"data": 22})
+        rabbitmq.publish(payload=data)
 
 # Got help from Soumil. Thank you brother for the wonderful idea.
